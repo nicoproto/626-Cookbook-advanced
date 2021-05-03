@@ -22,18 +22,32 @@ class Cookbook
     return @recipes
   end
 
+  def mark_recipe_as_done(index)
+    recipe = @recipes[index]
+    recipe.mark_as_done!
+    save_to_csv
+  end
+
   private
 
   def load_csv
     CSV.foreach(@csv_file) do |row|
-      @recipes << Recipe.new(row[0], row[1])
+      # "true" or "false"
+      done = "true" == row[3]
+      @recipes << Recipe.new(
+        name: row[0],
+        description: row[1],
+        rating: row[2],
+        done: done,
+        prep_time: row[4]
+      )
     end
   end
 
   def save_to_csv
     CSV.open(@csv_file, 'wb') do |csv|
       @recipes.each do |recipe|
-        csv << [recipe.name, recipe.description]
+        csv << [recipe.name, recipe.description, recipe.rating, recipe.done, recipe.prep_time]
       end
     end
   end
